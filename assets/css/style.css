@@ -22,11 +22,6 @@
     transition: all 0.3s ease;
 }
 
-.bcc-contact-buttons a:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
 .bcc-contact-buttons a img {
     width: 28px;
     height: 28px;
@@ -47,7 +42,9 @@
 }
 
 /* Buttons that are icon-only on desktop */
-.bcc-zalo, .bcc-messenger, .bcc-email {
+.bcc-zalo,
+.bcc-messenger,
+.bcc-email {
     width: 50px;
 }
 
@@ -81,12 +78,24 @@
         box-shadow: none;
     }
 
+    .bcc-contact-buttons a img{
+        width: 40px;
+        height: 40px;
+    }
+
+    .bcc-contact-buttons .bcc-messenger,
+    .bcc-contact-buttons .bcc-zalo,
+    .bcc-contact-buttons .bcc-phone,
+    .bcc-contact-buttons .bcc-email {
+        background-color: transparent !important;
+    }
+
     /* Hide phone text on mobile */
     .bcc-phone-text {
         display: none;
     }
 
-    .bcc-email img{
+    .bcc-email img {
         color: white;
     }
 }

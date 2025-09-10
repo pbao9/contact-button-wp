@@ -44,6 +44,10 @@ class Baro_Contact_Chat {
         register_setting('bcc_settings_group', 'bcc_messenger_link');
         register_setting('bcc_settings_group', 'bcc_email_address');
         register_setting('bcc_settings_group', 'bcc_primary_color');
+        register_setting('bcc_settings_group', 'bcc_gradient_enable');
+        register_setting('bcc_settings_group', 'bcc_gradient_top_color');
+        register_setting('bcc_settings_group', 'bcc_gradient_bottom_color');
+        register_setting('bcc_settings_group', 'bcc_gradient_direction');
     }
 
     public function bcc_create_admin_page() {
@@ -78,6 +82,29 @@ class Baro_Contact_Chat {
                         <th scope="row">Primary Color</th>
                         <td><input type="text" name="bcc_primary_color" value="<?php echo esc_attr(get_option('bcc_primary_color', '#0073aa')); ?>" class="color-picker" /></td>
                     </tr>
+                    <tr valign="top">
+                        <th scope="row">Enable Gradient Background</th>
+                        <td><input type="checkbox" name="bcc_gradient_enable" value="1" <?php checked(1, get_option('bcc_gradient_enable'), true); ?> /></td>
+                    </tr>
+                    <tr valign="top" class="gradient-options">
+                        <th scope="row">Gradient Top Color</th>
+                        <td><input type="text" name="bcc_gradient_top_color" value="<?php echo esc_attr(get_option('bcc_gradient_top_color', '#0073aa')); ?>" class="color-picker" /></td>
+                    </tr>
+                    <tr valign="top" class="gradient-options">
+                        <th scope="row">Gradient Bottom Color</th>
+                        <td><input type="text" name="bcc_gradient_bottom_color" value="<?php echo esc_attr(get_option('bcc_gradient_bottom_color', '#00b8e6')); ?>" class="color-picker" /></td>
+                    </tr>
+                    <tr valign="top" class="gradient-options">
+                        <th scope="row">Gradient Direction</th>
+                        <td>
+                            <select name="bcc_gradient_direction">
+                                <option value="to bottom" <?php selected(get_option('bcc_gradient_direction'), 'to bottom'); ?>>Top to Bottom</option>
+                                <option value="to right" <?php selected(get_option('bcc_gradient_direction'), 'to right'); ?>>Left to Right</option>
+                                <option value="to bottom right" <?php selected(get_option('bcc_gradient_direction'), 'to bottom right'); ?>>Top Left to Bottom Right</option>
+                                <option value="to bottom left" <?php selected(get_option('bcc_gradient_direction'), 'to bottom left'); ?>>Top Right to Bottom Left</option>
+                            </select>
+                        </td>
+                    </tr>
                 </table>
                 <?php submit_button(); ?>
             </form>
@@ -110,7 +137,7 @@ class Baro_Contact_Chat {
             }
     
             $primary_color_rgba = hex2rgba($primary_color, 0.8);
-    
+
             $custom_css = "
                 .bcc-contact-buttons a,
                 .bcc-phone {
@@ -123,12 +150,31 @@ class Baro_Contact_Chat {
                 .bcc-contact-buttons .phone-wrapper span {
                     background-color: {$primary_color_rgba};
                 }
-                @media (max-width: 478px){
-                    .bcc-contact-buttons {
-                        background-color: {$primary_color}
-                    }
-                }
             ";
+
+            $gradient_enable = get_option('bcc_gradient_enable');
+
+            if($gradient_enable){
+                $gradient_top_color = get_option('bcc_gradient_top_color', '#0073aa');
+                $gradient_bottom_color = get_option('bcc_gradient_bottom_color', '#00b8e6');
+                $gradient_direction = get_option('bcc_gradient_direction', 'to bottom');
+                $custom_css .= "
+                    @media (max-width: 478px){
+                        .bcc-contact-buttons {
+                            background: linear-gradient(" . $gradient_direction . ", " . $gradient_top_color . ", " . $gradient_bottom_color . ");
+                        }
+                    }
+                ";
+            } else {
+                $custom_css .= "
+                    @media (max-width: 478px){
+                        .bcc-contact-buttons {
+                            background-color: {$primary_color};
+                        }
+                    }
+                ";
+            }
+    
             wp_add_inline_style('bcc-style', $custom_css);
         }
     }
