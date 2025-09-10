@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Baro Contact Chat
  * Description: A simple contact chat plugin with customizable buttons (Phone, Zalo, Messenger, Email) and color options.
- * Version: 1.1
+ * Version: 1.2
  * Author: Baro Dev
  * Author URI: https://baro-dev.io.vn, https://devro-tech.com, https://tgs.com.vn
  * Plugin URI: https://baro-dev.io.vn
@@ -43,7 +43,13 @@ class Baro_Contact_Chat {
         register_setting('bcc_settings_group', 'bcc_zalo_link');
         register_setting('bcc_settings_group', 'bcc_messenger_link');
         register_setting('bcc_settings_group', 'bcc_email_address');
-        register_setting('bcc_settings_group', 'bcc_primary_color');
+        
+        // Register individual color settings
+        register_setting('bcc_settings_group', 'bcc_phone_color');
+        register_setting('bcc_settings_group', 'bcc_zalo_color');
+        register_setting('bcc_settings_group', 'bcc_messenger_color');
+        register_setting('bcc_settings_group', 'bcc_email_color');
+
         register_setting('bcc_settings_group', 'bcc_gradient_enable');
         register_setting('bcc_settings_group', 'bcc_gradient_top_color');
         register_setting('bcc_settings_group', 'bcc_gradient_bottom_color');
@@ -78,10 +84,32 @@ class Baro_Contact_Chat {
                         <th scope="row">Email Address</th>
                         <td><input type="email" name="bcc_email_address" value="<?php echo esc_attr(get_option('bcc_email_address')); ?>" class="regular-text" /></td>
                     </tr>
+
                     <tr valign="top">
-                        <th scope="row">Primary Color</th>
-                        <td><input type="text" name="bcc_primary_color" value="<?php echo esc_attr(get_option('bcc_primary_color', '#0073aa')); ?>" class="color-picker" /></td>
+                        <th scope="row"><h2>Icon Colors</h2></th>
                     </tr>
+
+                    <tr valign="top">
+                        <th scope="row">Phone Color</th>
+                        <td><input type="text" name="bcc_phone_color" value="<?php echo esc_attr(get_option('bcc_phone_color', '#0073aa')); ?>" class="color-picker" /></td>
+                    </tr>
+                     <tr valign="top">
+                        <th scope="row">Zalo Color</th>
+                        <td><input type="text" name="bcc_zalo_color" value="<?php echo esc_attr(get_option('bcc_zalo_color', '#0068ff')); ?>" class="color-picker" /></td>
+                    </tr>
+                     <tr valign="top">
+                        <th scope="row">Messenger Color</th>
+                        <td><input type="text" name="bcc_messenger_color" value="<?php echo esc_attr(get_option('bcc_messenger_color', '#0084ff')); ?>" class="color-picker" /></td>
+                    </tr>
+                     <tr valign="top">
+                        <th scope="row">Email Color</th>
+                        <td><input type="text" name="bcc_email_color" value="<?php echo esc_attr(get_option('bcc_email_color', '#dd4b39')); ?>" class="color-picker" /></td>
+                    </tr>
+
+                    <tr valign="top">
+                        <th scope="row"><h2>Mobile Background</h2></th>
+                    </tr>
+
                     <tr valign="top">
                         <th scope="row">Enable Gradient Background</th>
                         <td><input type="checkbox" name="bcc_gradient_enable" value="1" <?php checked(1, get_option('bcc_gradient_enable'), true); ?> /></td>
@@ -117,9 +145,13 @@ class Baro_Contact_Chat {
             wp_enqueue_style('bcc-style', BCC_PLUGIN_URL . 'assets/css/style.css');
             wp_enqueue_script('bcc-main-script', BCC_PLUGIN_URL . 'assets/js/main.js', [], '1.0', true);
             
-            $primary_color = get_option('bcc_primary_color', '#0073aa');
+            // Get icon colors
+            $phone_color = get_option('bcc_phone_color', '#0073aa');
+            $zalo_color = get_option('bcc_zalo_color', '#0068ff');
+            $messenger_color = get_option('bcc_messenger_color', '#0084ff');
+            $email_color = get_option('bcc_email_color', '#dd4b39');
     
-            // Hàm chuyển HEX sang RGBA
+            // Helper function to convert HEX to RGBA
             if (!function_exists('hex2rgba')) {
                 function hex2rgba($color, $alpha = 1){
                     $color = str_replace('#','',$color);
@@ -136,30 +168,32 @@ class Baro_Contact_Chat {
                 }
             }
     
-            $primary_color_rgba = hex2rgba($primary_color, 0.8);
+            $phone_color_rgba = hex2rgba($phone_color, 0.8);
 
             $custom_css = "
-                .bcc-contact-buttons a,
-                .bcc-phone {
-                    background-color: {$primary_color};
-                }
+                .bcc-phone { background-color: {$phone_color}; }
+                .bcc-zalo { background-color: {$zalo_color}; }
+                .bcc-messenger { background-color: {$messenger_color}; }
+                .bcc-email { background-color: {$email_color}; }
+
                 @keyframes pulse {
                     0% { box-shadow: 0 0 0 0px rgba(0,0,0,0.2); }
                     100% { box-shadow: 0 0 0 20px rgba(0,0,0,0); }
                 }
-                .bcc-contact-buttons .phone-wrapper span {
-                    background-color: {$primary_color_rgba};
+                .bcc-contact-buttons .phone-wrapper span.bcc-phone-text {
+                    background-color: {$phone_color_rgba};
                 }
             ";
 
             $gradient_enable = get_option('bcc_gradient_enable');
+            $primary_color = get_option('bcc_phone_color', '#0073aa'); // Fallback for mobile bg
 
             if($gradient_enable){
                 $gradient_top_color = get_option('bcc_gradient_top_color', '#0073aa');
                 $gradient_bottom_color = get_option('bcc_gradient_bottom_color', '#00b8e6');
                 $gradient_direction = get_option('bcc_gradient_direction', 'to bottom');
                 $custom_css .= "
-                    @media (max-width: 478px){
+                    @media (max-width: 768px){
                         .bcc-contact-buttons {
                             background: linear-gradient(" . $gradient_direction . ", " . $gradient_top_color . ", " . $gradient_bottom_color . ");
                         }
@@ -167,7 +201,7 @@ class Baro_Contact_Chat {
                 ";
             } else {
                 $custom_css .= "
-                    @media (max-width: 478px){
+                    @media (max-width: 768px){
                         .bcc-contact-buttons {
                             background-color: {$primary_color};
                         }
@@ -203,14 +237,6 @@ class Baro_Contact_Chat {
 
         echo '<div class="bcc-contact-buttons">';
 
-        // Phone Button
-        if (!empty($phone)) {
-            echo '<a href="tel:' . esc_attr($phone) . '" class="bcc-phone bcc-pulse">' . 
-                 '<img src="' . $icon_url . 'btn_phone.png" alt="Phone">' . 
-                 '<span class="bcc-phone-text">' . esc_html($phone) . '</span>' . 
-                 '</a>';
-        }
-
         // Zalo Button
         if (!empty($zalo)) {
             echo '<a href="' . esc_url($zalo) . '" target="_blank" class="bcc-zalo bcc-pulse"><img src="' . $icon_url . 'btn_zalo.png" alt="Zalo"></a>';
@@ -221,7 +247,18 @@ class Baro_Contact_Chat {
             echo '<a href="' . esc_url($messenger) . '" target="_blank" class="bcc-messenger bcc-pulse"><img src="' . $icon_url . 'btn_mess.png" alt="Messenger"></a>';
         }
 
-        // Email Button (Re-enabled)
+        // Phone Button
+        if (!empty($phone)) {
+            echo '<div class="phone-wrapper">';
+            echo '<span class="bcc-phone-text">' . esc_html($phone) . '</span>' ;
+            echo '<a href="tel:' . esc_attr($phone) . '" class="bcc-phone bcc-pulse">' . 
+                 '<img src="' . $icon_url . 'btn_phone.png" alt="Phone">' . 
+                 '</a>';
+         
+            echo '</div>';
+        }
+
+        // Email Button
         if (!empty($email)) {
             echo '<a href="mailto:' . esc_attr($email) . '" class="bcc-email"><img src="' . $icon_url . 'email.svg" alt="Email"></a>';
         }
